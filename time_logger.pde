@@ -6,7 +6,7 @@ void setup() {
    // initialize the serial port
    // communication between the arduino and the open log is over serial
    Serial.begin(9600);
-   
+
    // initialize the SPI communication
    // communication between the arduino and the real time clock is over SPI
    SPI.begin();
@@ -56,21 +56,21 @@ void readTime(int * year,
   *day     = readTimeValue(0x04);
   *hour    = readTimeValue(0x02);
   *minute  = readTimeValue(0x01);
-  *second  = readTimeValue(0x00);  
+  *second  = readTimeValue(0x00);
 }
 
 // value is written to datetime string in two digits and the string address index is incremented
 void placeDigitsInArray(char * datetime, int * index, int value){
   datetime[(*index)++] = (value / 10) + 0x30;
-  datetime[(*index)++] = (value % 10) + 0x30; 
+  datetime[(*index)++] = (value % 10) + 0x30;
 }
 
 // using the values passed in, an 18 digit zero terminated string is constructed and passed back
-char * constructDateString(int year, 
-                           int month, 
-                           int day, 
-                           int hour, 
-                           int minute, 
+char * constructDateString(int year,
+                           int month,
+                           int day,
+                           int hour,
+                           int minute,
                            int second){
   char datetime[18];
   int i = 0;
@@ -86,7 +86,7 @@ char * constructDateString(int year,
   datetime[i++] = ':';
   placeDigitsInArray(datetime, &i, second);
   datetime[i++] = 0;
-  return(datetime);  
+  return(datetime);
 }
 
 void loop() {
@@ -96,20 +96,79 @@ void loop() {
   int hour;
   int minute;
   int second;
-  
-  readTime(&year, &month, &day, &hour, &minute, &second);
 
+  readTime(&year, &month, &day, &hour, &minute, &second);
   char * datetime = constructDateString(year, month, day, hour, minute, second);
-  
+  Serial.write(datetime);
+  Serial.println();
+
+  delay(1000);
+
   // todo read input into serial string and write RTC with value
   // read string
   // create BCD for each
   // write BCD to registers
-  
-  
-  Serial.write(datetime);  
-  Serial.println();
-  
-  delay(1000);
+
+  char dateString[13];
+  if (Serial.available() >= 12){
+    for (int i=0; i<12; i++){
+      dateString[i] = Serial.read();
+    }
+    dateString[12] = 0;
+    Serial.print("received string ");
+    Serial.write(dateString);
+    Serial.println();
+
+  int i = 0;
+  int val = 0;
+  int digit = 0;
+
+  // year
+  val = 0;
+  val |= (dateString[i++] - 0x30) << 4;
+  val |= (dateString[i++] - 0x30);
+  writeToSPI(0x86, val);
+
+  // month
+  val = 0;
+  val |= (dateString[i++] - 0x30) << 4;
+  val |= (dateString[i++] - 0x30);
+  writeToSPI(0x85, val);
+
+  // day
+  val = 0;
+  digit = dateString[i++] - 0x30;
+  val |= digit << 4;
+  digit = dateString[i++] - 0x30;
+  val |= digit;
+  writeToSPI(0x84, val);
+
+  // hour
+  val = 0;
+  digit = dateString[i++] - 0x30;
+  val |= digit << 4;
+  digit = dateString[i++] - 0x30;
+  val |= digit;
+  writeToSPI(0x82, val);
+
+  // minute
+  val = 0;
+  digit = dateString[i++] - 0x30;
+  val |= digit << 4;
+  digit = dateString[i++] - 0x30;
+  val |= digit;
+  writeToSPI(0x81, val);
+
+  // seconds
+  val = 0;
+  digit = dateString[i++] - 0x30;
+  val |= digit << 4;
+  digit = dateString[i++] - 0x30;
+  val |= digit;
+  writeToSPI(0x80, val);
+
+  }
+
+
 }
 
