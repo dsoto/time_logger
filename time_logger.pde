@@ -26,23 +26,26 @@ void writeToSPI(int instruction, int value){
   digitalWrite(CS, HIGH);
 }
 
-int convertBCDtoDEC(int val){
-  int seconds;
-  seconds = ((val & 0xF0) >> 4) * 10;
-  seconds += val & 0x0f;
-  return(seconds);
+int convertBCDtoDEC(int valBCD){
+  int valDEC;
+  valDEC = ((valBCD & 0xF0) >> 4) * 10;
+  valDEC += valBCD & 0x0f;
+  return(valDEC);
+}
+
+void readTime(int * seconds){
+  digitalWrite(CS, LOW);
+  SPI.transfer(0x00);
+  int valBCD = SPI.transfer(0x00);
+  *seconds = convertBCDtoDEC(valBCD);
+  digitalWrite(CS, HIGH);
+    
 }
 
 void loop() {
   int seconds;
-  int valBCD;
   
-  digitalWrite(CS, LOW);
-  SPI.transfer(0x00);
-  valBCD = SPI.transfer(0x00);
-  seconds = convertBCDtoDEC(valBCD);
-  digitalWrite(CS, HIGH);
-  
+  readTime(&seconds);
 
   Serial.println(seconds, DEC);
   
