@@ -59,6 +59,13 @@ void readTime(int * year,
   *second  = readTimeValue(0x00);  
 }
 
+/*
+void placeDigitsInArray(char datetime, int * index, int value){
+  datetime[(*index)++] = (value/10) + 0x30;
+  datetime[(*index)++] = (value % 10) + 0x30; 
+}
+*/
+
 void loop() {
   int year;
   int month;
@@ -73,6 +80,7 @@ void loop() {
   int i = 0;
   datetime[i++] = (year / 10) + 0x30;
   datetime[i++] = (year % 10) + 0x30;
+  //placeDigitsInArray(&datetime, &i, year);
   datetime[i++] = '/';
   datetime[i++] = (month / 10) + 0x30;
   datetime[i++] = (month % 10) + 0x30;
