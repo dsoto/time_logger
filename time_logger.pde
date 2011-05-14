@@ -59,19 +59,20 @@ void readTime(int * year,
   *second  = readTimeValue(0x00);  
 }
 
-
+// value is written to datetime string in two digits and the string address index is incremented
 void placeDigitsInArray(char * datetime, int * index, int value){
   datetime[(*index)++] = (value / 10) + 0x30;
   datetime[(*index)++] = (value % 10) + 0x30; 
 }
 
-void constructDateString(char * datetime,
-                         int year, 
-                         int month, 
-                         int day, 
-                         int hour, 
-                         int minute, 
-                         int second){
+// using the values passed in, an 18 digit zero terminated string is constructed and passed back
+char * constructDateString(int year, 
+                           int month, 
+                           int day, 
+                           int hour, 
+                           int minute, 
+                           int second){
+  char datetime[18];
   int i = 0;
   placeDigitsInArray(datetime, &i, year);
   datetime[i++] = '/';
@@ -84,7 +85,8 @@ void constructDateString(char * datetime,
   placeDigitsInArray(datetime, &i, minute);
   datetime[i++] = ':';
   placeDigitsInArray(datetime, &i, second);
-  datetime[i++] = 0;  
+  datetime[i++] = 0;
+  return(datetime);  
 }
 
 void loop() {
@@ -97,8 +99,14 @@ void loop() {
   
   readTime(&year, &month, &day, &hour, &minute, &second);
 
-  char datetime[18];
-  constructDateString(datetime, year, month, day, hour, minute, second);
+  char * datetime = constructDateString(year, month, day, hour, minute, second);
+  
+  // todo read input into serial string and write RTC with value
+  // read string
+  // create BCD for each
+  // write BCD to registers
+  
+  
   Serial.write(datetime);  
   Serial.println();
   
