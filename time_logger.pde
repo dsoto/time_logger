@@ -89,51 +89,23 @@ char * constructDateString(int year,
   return(datetime);
 }
 
-void writeRTC(char * datetime, int * index, int address){
+void writeRTC(char * dateString, int * index, int address){
   int val = 0;
-
+  val |= (dateString[(*index)++] - 0x30) << 4;
+  val |= (dateString[(*index)++] - 0x30);
+  writeToSPI(address, val);
 }
 
 void setTime(char * dateString){
   int i = 0;
   int val = 0;
 
-  // year
-  val = 0;
-  val |= (dateString[i++] - 0x30) << 4;
-  val |= (dateString[i++] - 0x30);
-  writeToSPI(0x86, val);
-
-  // month
-  val = 0;
-  val |= (dateString[i++] - 0x30) << 4;
-  val |= (dateString[i++] - 0x30);
-  writeToSPI(0x85, val);
-
-  // day
-  val = 0;
-  val |= (dateString[i++] - 0x30) << 4;
-  val |= (dateString[i++] - 0x30);
-  writeToSPI(0x84, val);
-
-  // hour
-  val = 0;
-  val |= (dateString[i++] - 0x30) << 4;
-  val |= (dateString[i++] - 0x30);
-  writeToSPI(0x82, val);
-
-  // minute
-  val = 0;
-  val |= (dateString[i++] - 0x30) << 4;
-  val |= (dateString[i++] - 0x30);
-  writeToSPI(0x81, val);
-
-  // seconds
-  val = 0;
-  val |= (dateString[i++] - 0x30) << 4;
-  val |= (dateString[i++] - 0x30);
-  writeToSPI(0x80, val);
-
+  writeRTC(dateString, &i, 0x86);
+  writeRTC(dateString, &i, 0x85);
+  writeRTC(dateString, &i, 0x84);
+  writeRTC(dateString, &i, 0x82);
+  writeRTC(dateString, &i, 0x81);
+  writeRTC(dateString, &i, 0x80);
 }
 
 void loop() {
