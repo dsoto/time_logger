@@ -89,6 +89,53 @@ char * constructDateString(int year,
   return(datetime);
 }
 
+void writeRTC(char * datetime, int * index, int address){
+  int val = 0;
+
+}
+
+void setTime(char * dateString){
+  int i = 0;
+  int val = 0;
+
+  // year
+  val = 0;
+  val |= (dateString[i++] - 0x30) << 4;
+  val |= (dateString[i++] - 0x30);
+  writeToSPI(0x86, val);
+
+  // month
+  val = 0;
+  val |= (dateString[i++] - 0x30) << 4;
+  val |= (dateString[i++] - 0x30);
+  writeToSPI(0x85, val);
+
+  // day
+  val = 0;
+  val |= (dateString[i++] - 0x30) << 4;
+  val |= (dateString[i++] - 0x30);
+  writeToSPI(0x84, val);
+
+  // hour
+  val = 0;
+  val |= (dateString[i++] - 0x30) << 4;
+  val |= (dateString[i++] - 0x30);
+  writeToSPI(0x82, val);
+
+  // minute
+  val = 0;
+  val |= (dateString[i++] - 0x30) << 4;
+  val |= (dateString[i++] - 0x30);
+  writeToSPI(0x81, val);
+
+  // seconds
+  val = 0;
+  val |= (dateString[i++] - 0x30) << 4;
+  val |= (dateString[i++] - 0x30);
+  writeToSPI(0x80, val);
+
+}
+
 void loop() {
   int year;
   int month;
@@ -119,53 +166,7 @@ void loop() {
     Serial.write(dateString);
     Serial.println();
 
-  int i = 0;
-  int val = 0;
-  int digit = 0;
-
-  // year
-  val = 0;
-  val |= (dateString[i++] - 0x30) << 4;
-  val |= (dateString[i++] - 0x30);
-  writeToSPI(0x86, val);
-
-  // month
-  val = 0;
-  val |= (dateString[i++] - 0x30) << 4;
-  val |= (dateString[i++] - 0x30);
-  writeToSPI(0x85, val);
-
-  // day
-  val = 0;
-  digit = dateString[i++] - 0x30;
-  val |= digit << 4;
-  digit = dateString[i++] - 0x30;
-  val |= digit;
-  writeToSPI(0x84, val);
-
-  // hour
-  val = 0;
-  digit = dateString[i++] - 0x30;
-  val |= digit << 4;
-  digit = dateString[i++] - 0x30;
-  val |= digit;
-  writeToSPI(0x82, val);
-
-  // minute
-  val = 0;
-  digit = dateString[i++] - 0x30;
-  val |= digit << 4;
-  digit = dateString[i++] - 0x30;
-  val |= digit;
-  writeToSPI(0x81, val);
-
-  // seconds
-  val = 0;
-  digit = dateString[i++] - 0x30;
-  val |= digit << 4;
-  digit = dateString[i++] - 0x30;
-  val |= digit;
-  writeToSPI(0x80, val);
+    setTime(dateString);
 
   }
 
