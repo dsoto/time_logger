@@ -59,12 +59,12 @@ void readTime(int * year,
   *second  = readTimeValue(0x00);  
 }
 
-/*
-void placeDigitsInArray(char datetime, int * index, int value){
-  datetime[(*index)++] = (value/10) + 0x30;
+
+void placeDigitsInArray(char * datetime, int * index, int value){
+  datetime[(*index)++] = (value / 10) + 0x30;
   datetime[(*index)++] = (value % 10) + 0x30; 
 }
-*/
+
 
 void loop() {
   int year;
@@ -78,26 +78,19 @@ void loop() {
 
   char datetime[18];
   int i = 0;
-  datetime[i++] = (year / 10) + 0x30;
-  datetime[i++] = (year % 10) + 0x30;
-  //placeDigitsInArray(&datetime, &i, year);
+  placeDigitsInArray(datetime, &i, year);
   datetime[i++] = '/';
-  datetime[i++] = (month / 10) + 0x30;
-  datetime[i++] = (month % 10) + 0x30;
+  placeDigitsInArray(datetime, &i, month);
   datetime[i++] = '/';
-  datetime[i++] = (day / 10) + 0x30;
-  datetime[i++] = (day % 10) + 0x30;
+  placeDigitsInArray(datetime, &i, day);
   datetime[i++] = ' ';
-  datetime[i++] = (hour / 10) + 0x30;
-  datetime[i++] = (hour % 10) + 0x30;
+  placeDigitsInArray(datetime, &i, hour);
   datetime[i++] = ':';
-  datetime[i++] = (minute / 10) + 0x30;
-  datetime[i++] = (minute % 10) + 0x30;
+  placeDigitsInArray(datetime, &i, minute);
   datetime[i++] = ':';
-  datetime[i++] = (second / 10) + 0x30;
-  datetime[i++] = (second % 10) + 0x30;
+  placeDigitsInArray(datetime, &i, second);
   datetime[i++] = 0;
-  
+
   Serial.write(datetime);  
   Serial.println();
   
