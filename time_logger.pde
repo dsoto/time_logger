@@ -2,7 +2,6 @@
 
 const int CS = 10;  // chip select pin
 
-
 void setup() {
    // initialize the serial port
    // communication between the arduino and the open log is over serial
@@ -33,21 +32,50 @@ int convertBCDtoDEC(int valBCD){
   return(valDEC);
 }
 
-void readTime(int * seconds){
+int readTimeValue(int address){
   digitalWrite(CS, LOW);
-  SPI.transfer(0x00);
+  SPI.transfer(address);
   int valBCD = SPI.transfer(0x00);
-  *seconds = convertBCDtoDEC(valBCD);
   digitalWrite(CS, HIGH);
-    
+  int valDEC = convertBCDtoDEC(valBCD);
+  return(valDEC);
+}
+
+void readTime(int * year,
+              int * month,
+              int * day,
+              int * hour,
+              int * minute,
+              int * second){
+  *year    = readTimeValue(0x06);
+  *month   = readTimeValue(0x05);
+  *day     = readTimeValue(0x04);
+  *hour    = readTimeValue(0x02);
+  *minute  = readTimeValue(0x01);
+  *second  = readTimeValue(0x00);  
 }
 
 void loop() {
-  int seconds;
+  int year;
+  int month;
+  int day;
+  int hour;
+  int minute;
+  int second;
   
-  readTime(&seconds);
+  readTime(&year, &month, &day, &hour, &minute, &second);
 
-  Serial.println(seconds, DEC);
+  Serial.print(year, DEC);
+  Serial.print("/");
+  Serial.print(month, DEC);
+  Serial.print("/");
+  Serial.print(day, DEC);
+  Serial.print(" ");
+  Serial.print(hour, DEC);
+  Serial.print(":");
+  Serial.print(minute, DEC);
+  Serial.print(":");
+  Serial.println(second, DEC);
   
   delay(1000);
 }
