@@ -25,6 +25,7 @@ void writeToSPI(int instruction, int value){
   digitalWrite(CS, HIGH);
 }
 
+// converts a binary coded decimal to a decimal
 int convertBCDtoDEC(int valBCD){
   int valDEC;
   valDEC = ((valBCD & 0xF0) >> 4) * 10;
@@ -32,6 +33,8 @@ int convertBCDtoDEC(int valBCD){
   return(valDEC);
 }
 
+// reads the BCD at address on the RTC and returns a converted int value
+// representing that piece of the date
 int readTimeValue(int address){
   digitalWrite(CS, LOW);
   SPI.transfer(address);
@@ -41,6 +44,7 @@ int readTimeValue(int address){
   return(valDEC);
 }
 
+// reads the entire yymmddhhmmss values from the RTC
 void readTime(int * year,
               int * month,
               int * day,
@@ -65,17 +69,29 @@ void loop() {
   
   readTime(&year, &month, &day, &hour, &minute, &second);
 
-  Serial.print(year, DEC);
-  Serial.print("/");
-  Serial.print(month, DEC);
-  Serial.print("/");
-  Serial.print(day, DEC);
-  Serial.print(" ");
-  Serial.print(hour, DEC);
-  Serial.print(":");
-  Serial.print(minute, DEC);
-  Serial.print(":");
-  Serial.println(second, DEC);
+  char datetime[18];
+  int i = 0;
+  datetime[i++] = (year / 10) + 0x30;
+  datetime[i++] = (year % 10) + 0x30;
+  datetime[i++] = '/';
+  datetime[i++] = (month / 10) + 0x30;
+  datetime[i++] = (month % 10) + 0x30;
+  datetime[i++] = '/';
+  datetime[i++] = (day / 10) + 0x30;
+  datetime[i++] = (day % 10) + 0x30;
+  datetime[i++] = ' ';
+  datetime[i++] = (hour / 10) + 0x30;
+  datetime[i++] = (hour % 10) + 0x30;
+  datetime[i++] = ':';
+  datetime[i++] = (minute / 10) + 0x30;
+  datetime[i++] = (minute % 10) + 0x30;
+  datetime[i++] = ':';
+  datetime[i++] = (second / 10) + 0x30;
+  datetime[i++] = (second % 10) + 0x30;
+  datetime[i++] = 0;
+  
+  Serial.write(datetime);  
+  Serial.println();
   
   delay(1000);
 }
