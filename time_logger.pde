@@ -65,18 +65,13 @@ void placeDigitsInArray(char * datetime, int * index, int value){
   datetime[(*index)++] = (value % 10) + 0x30; 
 }
 
-
-void loop() {
-  int year;
-  int month;
-  int day;
-  int hour;
-  int minute;
-  int second;
-  
-  readTime(&year, &month, &day, &hour, &minute, &second);
-
-  char datetime[18];
+void constructDateString(char * datetime,
+                         int year, 
+                         int month, 
+                         int day, 
+                         int hour, 
+                         int minute, 
+                         int second){
   int i = 0;
   placeDigitsInArray(datetime, &i, year);
   datetime[i++] = '/';
@@ -89,8 +84,21 @@ void loop() {
   placeDigitsInArray(datetime, &i, minute);
   datetime[i++] = ':';
   placeDigitsInArray(datetime, &i, second);
-  datetime[i++] = 0;
+  datetime[i++] = 0;  
+}
 
+void loop() {
+  int year;
+  int month;
+  int day;
+  int hour;
+  int minute;
+  int second;
+  
+  readTime(&year, &month, &day, &hour, &minute, &second);
+
+  char datetime[18];
+  constructDateString(datetime, year, month, day, hour, minute, second);
   Serial.write(datetime);  
   Serial.println();
   
