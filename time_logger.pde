@@ -1,6 +1,7 @@
 #include <SPI.h>
 
 const int CS = 10;  // chip select pin
+const int sampleIntervalMinutes = 5;
 
 void setup() {
    // initialize the serial port
@@ -29,7 +30,7 @@ void writeToSPI(int instruction, int value){
 int convertBCDtoDEC(int valBCD){
   int valDEC;
   valDEC = ((valBCD & 0xF0) >> 4) * 10;
-  valDEC += valBCD & 0x0f;
+  valDEC += valBCD & 0x0F;
   return(valDEC);
 }
 
@@ -98,8 +99,6 @@ void writeRTC(char * dateString, int * index, int address){
 
 void setTime(char * dateString){
   int i = 0;
-  int val = 0;
-
   writeRTC(dateString, &i, 0x86);
   writeRTC(dateString, &i, 0x85);
   writeRTC(dateString, &i, 0x84);
@@ -116,18 +115,19 @@ void loop() {
   int minute;
   int second;
 
+  // read time from RTC and store in variables
   readTime(&year, &month, &day, &hour, &minute, &second);
-  char * datetime = constructDateString(year, month, day, hour, minute, second);
-  Serial.write(datetime);
-  Serial.println();
+
+  // test if time is a multiple of 5 minutes.  if yes, write to serial.
+  if ((minute % sampleIntervalMinutes == 0) and (second == 0)){
+      char * datetime = constructDateString(year, month, day, hour, minute, second);
+      Serial.write(datetime);
+      Serial.println();
+  }
 
   delay(1000);
 
-  // todo read input into serial string and write RTC with value
-  // read string
-  // create BCD for each
-  // write BCD to registers
-
+  // look for string of length 12 YYMMDDHHMMSS on serial and then use to set time
   char dateString[13];
   if (Serial.available() >= 12){
     for (int i=0; i<12; i++){
@@ -137,11 +137,7 @@ void loop() {
     Serial.print("received string ");
     Serial.write(dateString);
     Serial.println();
-
     setTime(dateString);
-
   }
-
-
 }
 
